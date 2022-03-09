@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+"""
+CLI Utility for creating project folders
+"""
+from datetime import datetime
+from subprocess import call
+import shutil
+import argparse
+import os
+
+
+def file_exists(_parser, arg):
+    if not os.path.exists(arg):
+        _parser.error("Unable to locate file: %s" % arg)
+    else:
+        return arg
+
+
+def main(args):
+    """
+    Reads system arguments
+    Creates directories in CWD using date_now + arg
+
+    If a template.ipynb file exists in the CWD, it will be copied into each new
+    project directory
+    """
+    date_now = datetime.now().strftime("%Y-%m-%d_")
+    new_dir_names = set(arg.strip() for arg in args.dirs)
+    new_proj_names = set(arg.strip() for arg in args.projects)
+
+    for dir_name, proj_name in zip(new_dir_names, new_proj_names):
+        if not os.path.exists(date_now + dir_name):
+            if args.verbose:
+                print(f"Creating directory {date_now}{dir_name} in CWD")
+            os.mkdir(date_now + dir_name)
+            new_notebook = f"{date_now}{dir_name}/{proj_name}_{dir_name}.ipynb"
+            shutil.copy2(
+                args.template, new_notebook
+            )
+            call(f"touch {new_notebook}", shell=True)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", action="store_true")
+    parser.add_argument("-p", "--projects", nargs="+")
+    parser.add_argument("dirs", nargs="+")
+    parser.add_argument(
+        "-t",
+        "--template",
+        default="template.ipynb",
+        type=lambda x: file_exists(parser, x),
+    )
+    main(parser.parse_args())

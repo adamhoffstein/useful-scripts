@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+"""
+CLI Utility for converting images to color scheme hex lists
+"""
+import PIL
+import extcolors
+import pyperclip
+import argparse
+import urllib.request
+
+
+def get_image(image_path: str):
+    """
+    Accepts image_path
+    Returns PIL Image object
+    """
+    urllib.request.urlretrieve(image_path, "image")
+    img = PIL.Image.open("image")
+    return img
+
+
+def get_hex(rgb):
+    """
+    Accepts rgb tuple
+    Returns hex value
+    """
+    return "#%02x%02x%02x" % rgb
+
+
+def extract_colors(img, tol, lim):
+    """
+    Accepts PIL Image, tol (tolerance) and lim (limit)
+    Returns list of color tuples by occurance
+    """
+    colors = extcolors.extract_from_image(img, tolerance=tol, limit=lim)[0]
+    return colors
+
+
+def process_image(args):
+    """
+    Accepts args
+    Returns list of hex values
+    """
+    img = get_image(args.url)
+    colors = extract_colors(img, args.tolerance, args.limit)
+    return [get_hex(color[0]) for color in colors]
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-u", "--url", type=str, required=True, help="url to fetch image from"
+    )
+    parser.add_argument(
+        "-l",
+        "--limit",
+        type=int,
+        default=24,
+        help="the limit of color values to return",
+    )
+    parser.add_argument("-c", "--clipboard", action="store_true")
+    parser.add_argument(
+        "-t",
+        "--tolerance",
+        type=int,
+        default=32,
+        help="0-100: a higher tolerance results in less colors extracted",
+    )
+    parser_args = parser.parse_args()
+    results = process_image(args=parser_args)
+    if parser_args.clipboard:
+        print("Copied results to clipboard.")
+        pyperclip.copy(str(results))
+    print(results)

@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+"""
+CLI Utility for beautifying plain text SQL
+"""
+import argparse
+import sqlparse
+import pyperclip
+
+def main():
+    """
+    Reads clipboard text
+    Returns text formated as SQL
+    """
+    raw_text = pyperclip.paste()
+
+    try:
+        formated_sql = sqlparse.format(
+            raw_text, reindent=True,
+            keyword_case='upper'
+            )
+        print('Copied formatted SQL to clipboard.')
+        return formated_sql
+    except TypeError:
+        print('Could not read any raw text in clipboard.')
+        return None
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--verbose', action='store_true')
+    args = parser.parse_args()
+    text = main()
+    pyperclip.copy(text)
+    if args.verbose:
+        print(text)
