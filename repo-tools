@@ -1,6 +1,6 @@
 #!/bin/bash
 CURRENT_BRANCH=$(git branch --show-current)
-ERROR_MSG="Invalid command: try using one of the following: return-delete, commit-branch, push-current"
+ERROR_MSG="Invalid command: try using one of the following: return-delete, commit-branch, push-current, pull-current"
 if [ -z "$1" ]
   then
     echo $ERROR_MSG
@@ -12,6 +12,8 @@ elif [ $1 = "commit-branch" ];
   then git commit -am "$CURRENT_BRANCH: $2"
 elif [ $1 = "push-current" ];
   then git push origin $CURRENT_BRANCH
+elif [ $1 = "pull-current" ];
+  then git pull origin $CURRENT_BRANCH
 else
   echo $ERROR_MSG
 fi
