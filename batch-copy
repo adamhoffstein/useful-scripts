@@ -1,0 +1,20 @@
+#!/bin/bash
+if [ -z $1 ] ; then
+  echo "You must provide a string to replace" && exit 1;
+fi
+if [ -z $2 ] ; then
+  echo "You must a provide a replacement" && exit 1;
+fi
+if [ -z $3 ] ; then
+  echo "You must provide a pattern" && exit 1;
+fi
+
+to_replace=$1
+replacement=$2
+
+for file in ${@:3}
+do
+  new_file=${file/$to_replace/$replacement}
+  echo "Copying $file -> $new_file"
+  cp "$file" "$new_file"
+done
